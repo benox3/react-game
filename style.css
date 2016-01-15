@@ -1,0 +1,13 @@
+#editor,
+#output {
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        padding: 0;
+        overflow: scroll;
+}
+
+#output {
+    background-color: #fafafa;
+    right: 0;
+}
