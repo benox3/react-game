@@ -1,10 +1,29 @@
+html, body {
+    height: 100%;
+}
+
+#instructions {
+    margin-bottom: 0;
+}
+
+.editable-highlight {
+    background-color: green;
+    opacity: 0.5;
+    position: absolute;
+}
+
+.content {
+    position: relative;
+    height: 100%;
+}
+
 #editor,
 #output {
-        position: absolute;
-        width: 50%;
-        height: 100%;
-        padding: 0;
-        overflow: scroll;
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    padding: 0;
+    overflow:scroll;
 }
 
 #output {
