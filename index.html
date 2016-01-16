@@ -2,20 +2,35 @@
 <html lang='en'>
     <head>
         <meta charset='utf-8' />
+        <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
         <title>React Game</title>
-        <!-- Reset -->
-        <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.css' />
+        <!-- Bootstrap -->
+        <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' />
         <!-- Styles -->
         <link rel='stylesheet' href='./style.css' />
     </head>
     <body>
-        <!-- Editor -->
-        <div id='editor'></div>
-        <!-- Output -->
-        <iframe id='output' frameborder='0'></iframe>
+        <!-- Instructions -->
+        <div id='instructions' class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Instructions</h3>
+            </div>
+            <div class="panel-body"> Below we have a blank component. Inside of the `render` method we want to return a `&lt;div&gt;` with the text Hello World!</div>  </div>
+        </div>
+        
+        <!-- Container -->
+        <div class='content'>
+            <!-- Editor -->
+            <div id='editor'></div>
+            <!-- Output -->
+            <iframe id='output' frameborder='0'></iframe>
+        </div>
 
         <!-- Ace -->
         <script src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js'></script>
+        <!-- Lodash -->
+        <script src='//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js'></script>
         <!-- Main -->
         <script src='./main.js'></script>
     </body>
