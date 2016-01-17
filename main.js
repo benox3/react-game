@@ -7,6 +7,8 @@
     var editor = window.ace.edit('editor');
     var session  = editor.getSession();
     var allowedLines = [3];
+    var errorContainer = document.getElementById('errors');
+    var errorList = document.getElementById('error-list');
     editor.setTheme('ace/theme/monokai');
     session.setMode('ace/mode/jsx');
 
@@ -38,8 +40,15 @@
     
     // refresh on change
     editor.on('change', function() {
+        errorList.innerHTML = '';
         renderOutput();
         verifyOutput();
+        console.log(errorList.innerHTML.length)
+        if(errorList.innerHTML.length < 1) {
+            errorContainer.classList.remove('hide');
+            errorContainer.classList.add('hide');
+        } else { 
+            errorContainer.classList.remove('hide');
         }
     });
     
@@ -61,6 +70,9 @@
             eval(transpiledCode);
             
         } catch (e) {
+            var error = document.createElement('li');
+            error.innerHTML = '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + e;
+            errorList.appendChild(error);
             console.log(e);
         }
     }
@@ -75,6 +87,9 @@
                 alert('You got it!');
             }   
          } catch(e) {
+             var error = document.createElement('span');
+             error.innerHTML = e;
+             errorList.appendChild(error);
             console.log(e); 
          }
      }
