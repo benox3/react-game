@@ -1,22 +1,5 @@
 (function(){
     'use strict';
-
-    var scripts = [
-        '//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js',
-        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js',
-        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'
-    ];
-    
-    //define iframe
-    var iframe = document.getElementById('output');
-    var outputDocument;
-    if (iframe.contentDocument) {
-        outputDocument = iframe.contentDocument;
-    } else if (iframe.contentWindow) {
-        outputDocument = iframe.contentWindow.document;
-    } else {
-        outputDocument = iframe.document;
-    }
     
     // initialize editor
     var ace = window.ace;
@@ -24,28 +7,15 @@
     var editor = window.ace.edit('editor');
     var session  = editor.getSession();
     var allowedLines = [3];
+    var errorContainer = document.getElementById('errors');
+    var errorList = document.getElementById('error-list');
     editor.setTheme('ace/theme/monokai');
     session.setMode('ace/mode/jsx');
-
-    
-    
-    /*
-    var session  = editor.getSession();
-    var Range    = ace.require("ace/range").Range;
-    var range    = new Range(3);
-    var markerId = session.addMarker(range, "readonly-highlight");
-    
-    range.start  = session.doc.createAnchor(range.start);
-    range.end    = session.doc.createAnchor(range.end);
-    range.end.$insertRight = true;
-    */
 
     // code
     var code = (
         'var Component = React.createClass({\n\trender: function() {\n\t\treturn;\n\t}\n});'
     );
-    
-    
 
     editor.insert(code);
         
@@ -69,15 +39,18 @@
     });
     
     // refresh on change
-    editor.on('input', _.throttle(function() {
+    editor.on('change', function() {
+        errorList.innerHTML = '';
         renderOutput();
-        
-        //if answer is correct
-        if(outputDocument.querySelector('#answer div').innerHTML.indexOf('Hello World!')>=0){
-            alert('you got it!')   
+        verifyOutput();
+        console.log(errorList.innerHTML.length)
+        if(errorList.innerHTML.length < 1) {
+            errorContainer.classList.remove('hide');
+            errorContainer.classList.add('hide');
+        } else { 
+            errorContainer.classList.remove('hide');
         }
-        
-    }, 500));
+    });
     
     function intersects(range) {
         return editor.getSelectionRange().intersects(range);
@@ -88,23 +61,36 @@
      * Renders the editor output in the iframe.
      */
     function renderOutput() {
-        outputDocument.open();
-        outputDocument.writeln('<html><head>');
-        
-        // load external scripts
-        for (var i in scripts) {
-            outputDocument.writeln('<script src="' + scripts[i] +'"></script>');
+        try {
+            var editorVal = editor.getValue();
+            var renderComponentCode = "ReactDOM.render(<Component/>, document.getElementById('output'))";
+            var transpiledCode = babel.transform(editorVal + renderComponentCode).code;
+            
+            // Run the transpiled code
+            eval(transpiledCode);
+            
+        } catch (e) {
+            var error = document.createElement('li');
+            error.innerHTML = '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ' + e;
+            errorList.appendChild(error);
+            console.log(e);
         }
-        
-        var editorVal = editor.getValue() + ';ReactDOM.render(<Component />, document.getElementById("answer"));';
-        
-        var result = '';
-        result = '</head><body><div id="answer"></div>' +
-                 '<script type="text/babel">' +
-                 editorVal +
-                 '<\/script>' +
-                 '</body></html>';
-        outputDocument.writeln(result);
-        outputDocument.close();
     }
+    
+    /**
+     * Verifies the editor output to match expected output
+     */
+     function verifyOutput() {
+         try {
+            // if answer is correct alert us
+            if(document.querySelector('#output').innerHTML.indexOf('Hello World!')>=0){
+                alert('You got it!');
+            }   
+         } catch(e) {
+             var error = document.createElement('span');
+             error.innerHTML = e;
+             errorList.appendChild(error);
+            console.log(e); 
+         }
+     }
 })();
