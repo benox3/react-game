@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='en' class='no-js'>
     <head>
         <meta charset='utf-8' />
         <meta http-equiv='X-UA-Compatible' content='IE=edge' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <title>React Game</title>
+        <!-- Modernizr -->
+        <script src='//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js'></script>
         <!-- Bootstrap -->
         <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' />
         <!-- Styles -->
@@ -12,14 +14,16 @@
     </head>
     <body>
         <!-- Instructions -->
-        <div id='instructions' class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Instructions</h3>
+        <div id='instructions' class='panel panel-info'>
+            <div class='panel-heading'>
+                <h3 class='panel-title'>Instructions</h3>
             </div>
-            <div class="panel-body"> Below we have a blank component. Inside of the `render` method we want to return a `&lt;div&gt;` with the text Hello World!</div>  </div>
+            <div class='panel-body'>
+                Below we have a blank component. Inside of the <code>render</code> method we want to return a <code>&lt;div&gt;</code> with the text <code>Hello World!</code>.
+            </div>
         </div>
-        <div id='errors' class="alert alert-danger" role="alert">
-          <ul id="error-list"></ul>
+        <div id='errors' class='alert alert-danger' role='alert'>
+            <ul id='error-list' class='list-unstyled'></ul>
         </div>
         <!-- Container -->
         <div class='content'>
@@ -28,12 +32,13 @@
             <!-- Output -->
             <div id='output'></div>
         </div>
+
         <!-- Babel Transpiler -->
         <script src='//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js'></script>
         <!-- React -->
-        <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js'></script>
+        <script src='//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js'></script>
         <!-- React DOM-->
-        <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'></script>
+        <script src='//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'></script>
         <!-- Ace -->
         <script src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js'></script>
         <!-- Lodash -->
