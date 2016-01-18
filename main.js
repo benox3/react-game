@@ -2,14 +2,41 @@
     'use strict';
 
     // cache DOM elements
-    var outputNode = document.getElementById('output');
     var errorListNode = document.getElementById('error-list');
+    var outputNode;
+    var iframe = document.getElementById('output');
+    var iframeWindow = iframe.contentWindow;
+    window.iframeWindow = iframeWindow;
+    var iframeDocument = iframeWindow ? iframe.contentWindow.document : iframe.contentDocument;
+
+    // build iframe
+    iframeDocument.open();
+    // todo: get script dependencies from JSON
+    var dependencies = [
+        '//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.js',
+        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js',
+        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'
+    ];
+    var html = '<html><head>';
+    for (var dep in dependencies) {
+        html += '<script src="' + dependencies[dep] + '"></script>';
+    }
+    html += '</head><body></body></html>';
+    iframeDocument.write(html);
+    iframeDocument.close();
+
+    // iframe onload
+    iframeWindow.onload = function() {
+        outputNode = iframeDocument.body;
+        renderOutput(editor.getValue(), outputNode, errorListNode);
+    };
 
     // initialize editor
     var ace = window.ace;
     var Range = ace.require('ace/range').Range;
     var editor = ace.edit('editor');
     var session  = editor.getSession();
+    // todo: get allowed lines from JSON
     var allowedLines = [3];
 
     editor.setTheme('ace/theme/monokai');
@@ -21,9 +48,6 @@
     );
 
     editor.insert(code);
-
-    // initial load
-    renderOutput(editor.getValue(), outputNode, errorListNode);
 
     var range = new Range();
     range.setStart(allowedLines[0] - 1, 0);
@@ -48,7 +72,7 @@
 
     // refresh on change
     editor.on('change', function() {
-        // todo: hardcode expected output for now
+        // todo: get expected output from JSON
         onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
     });
 
@@ -96,17 +120,17 @@
      */
     function renderOutput(editorValue, outputNode, errorListNode) {
         try {
-            var renderComponentCode = '; ReactDOM.render(React.createElement(Component), document.getElementById("output"))';
-            var transpiledCode = window.babel.transform(editorValue + renderComponentCode).code;
+            // todo: use test case from JSON
+            var renderComponentCode = 'ReactDOM.render(React.createElement(Component), document.body)';
+            var transpiledCode = iframeWindow.babel.transform(editorValue + renderComponentCode).code;
 
             // run the transpiled code
-            eval(transpiledCode);
+            iframeWindow.eval(transpiledCode);
 
         } catch (e) {
             var errorElement = document.createElement('li');
-            errorElement.innerHTML = '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>' + '<span>' + e + '</span>';
+            errorElement.innerHTML = '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>' + '<span> ' + e + '</span>';
             errorListNode.appendChild(errorElement);
-            console.log(e);
         }
     }
 
