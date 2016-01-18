@@ -74,9 +74,11 @@
     editor.setTheme('ace/theme/monokai');
     session.setMode('ace/mode/jsx');
 
-    // code
+    // todo: get code from JSON
     var code = (
-        'var Component = React.createClass({\n\trender: function() {\n\t\treturn;\n\t}\n});'
+        'var Component = React.createClass({\n\t' +
+        'render: function() {\n\t\treturn;\n\t}\n});' +
+        '\n\nReactDOM.render(<Component />, document.body);'
     );
 
     editor.insert(code);
@@ -153,8 +155,7 @@
     function renderOutput(editorValue, outputNode, errorListNode) {
         try {
             // todo: use test case from JSON
-            var renderComponentCode = 'ReactDOM.render(React.createElement(Component), document.body)';
-            var transpiledCode = iframeWindow.babel.transform(editorValue + renderComponentCode).code;
+            var transpiledCode = iframeWindow.babel.transform(editorValue).code;
 
             // run the transpiled code
             iframeWindow.eval(transpiledCode);
