@@ -27,9 +27,16 @@
 
         // construct iframe document
         iframeDocument.open();
+        var url, extension;
         var html = ['<head>'];
         for (var i = 0, l = dependencies.length; i < l; i++) {
-            html.push('<script src="' + dependencies[i] + '"></script>');
+            url = dependencies[i];
+            extension = url.split('.').pop().toLowerCase();
+            if (extension === 'js') {
+                html.push('<script src="' + url + '"></script>');
+            } else if (extension === 'css') {
+                html.push('<link rel="stylesheet" href="' + url + '" />');
+            }
         }
         html.push('</head>');
         iframeDocument.write(html.join(''));
