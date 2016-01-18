@@ -71,10 +71,10 @@
     });
 
     // refresh on change
-    editor.on('change', function() {
-        // todo: get expected output from JSON
-        onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
-    });
+    // todo: get expected output from JSON
+    editor.on('change', window._.debounce(function() {
+         onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
+    }, 500));
 
     /**
      * Refreshes Ace editor on change.
