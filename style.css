@@ -1,22 +1,14 @@
+/* general */
 html, body {
     height: 100%;
 }
 
-#instructions, #errors {
+#instructions,
+#errors {
     margin-bottom: 0;
 }
 
-.editable-highlight {
-    background-color: green;
-    opacity: 0.5;
-    position: absolute;
-}
-
-.content {
-    position: relative;
-    height: 100%;
-}
-
+/* ace editor and output */
 #editor,
 #output {
     position: absolute;
@@ -29,4 +21,38 @@ html, body {
 #output {
     background-color: #fafafa;
     right: 0;
+}
+
+.editable-highlight {
+    background-color: #666;
+    opacity: 0.5;
+    position: absolute;
+}
+
+/* modal overlay */
+#overlay {
+    background: #000;
+    opacity: 0.5;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+}
+
+/* noscript spinner */
+.no-js #overlay > .fa-circle-o-notch {
+    color: #ddd;
+    /* center horizontally and vertically */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -35px;
+    margin-top: -35px;
+}
+
+.js #overlay,
+.js #overlay > .fa-circle-o-notch {
+    display: none;
 }
