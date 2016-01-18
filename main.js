@@ -4,30 +4,55 @@
     // cache DOM elements
     var errorListNode = document.getElementById('error-list');
     var outputNode;
-    var iframe = document.getElementById('output');
-    var iframeWindow = iframe.contentWindow;
-    window.iframeWindow = iframeWindow;
-    var iframeDocument = iframeWindow ? iframe.contentWindow.document : iframe.contentDocument;
 
-    // build iframe
-    iframeDocument.open();
+    /**
+     * Initializes iframe window and document for level output.
+     *
+     * @param {DOMElement} node - The DOM node, which can be an iframe.
+     * @param {Array} dependencies - The script dependencies for the iframe head.
+     * @return {Window} - The iframe window object.
+     */
+    function initializeIframe(node, dependencies) {
+        var iframe = node;
+
+        // use iframe node or create and append an iframe into node
+        if (iframe.nodeName !== 'IFRAME') {
+            iframe = document.createElement('iframe');
+            node.appendChild(iframe);
+        }
+
+        // get iframe window and document
+        var iframeWindow = iframe.contentWindow || iframe;
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+        // construct iframe document
+        iframeDocument.open();
+        var html = ['<head>'];
+        for (var i = 0, l = dependencies.length; i < l; i++) {
+            html.push('<script src="' + dependencies[i] + '"></script>');
+        }
+        html.push('</head>');
+        iframeDocument.write(html.join(''));
+        iframeDocument.close();
+
+        return iframeWindow;
+    }
+
     // todo: get script dependencies from JSON
     var dependencies = [
         '//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.js',
         '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js',
         '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'
     ];
-    var html = '<html><head>';
-    for (var dep in dependencies) {
-        html += '<script src="' + dependencies[dep] + '"></script>';
-    }
-    html += '</head><body></body></html>';
-    iframeDocument.write(html);
-    iframeDocument.close();
+
+    var iframeWindow = initializeIframe(
+        document.getElementById('output'),
+        dependencies
+    );
 
     // iframe onload
     iframeWindow.onload = function() {
-        outputNode = iframeDocument.body;
+        outputNode = iframeWindow.document.body;
         renderOutput(editor.getValue(), outputNode, errorListNode);
     };
 
