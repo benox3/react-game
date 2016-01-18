@@ -15,40 +15,35 @@
         <link rel='stylesheet' href='./style.css' />
     </head>
     <body>
-        <!-- Instructions -->
-        <div id='instructions' class='panel panel-info'>
-            <div class='panel-heading'>
-                <h3 class='panel-title'>Instructions</h3>
+        <!-- Main -->
+        <div id='main'>
+            <!-- Instructions -->
+            <div id='instructions' class='panel panel-info'>
+                <div class='panel-heading'>
+                    <h3 class='panel-title'>Instructions</h3>
+                </div>
+                <div class='panel-body'>
+                    Below we have a blank component. Inside of the <code>render</code> method we want to return a <code>&lt;div&gt;</code> with the text <code>Hello World!</code>.
+                </div>
             </div>
-            <div class='panel-body'>
-                Below we have a blank component. Inside of the <code>render</code> method we want to return a <code>&lt;div&gt;</code> with the text <code>Hello World!</code>.
+
+            <!-- Errors -->
+            <div id='errors' class='alert alert-danger hide' role='alert'>
+                <ul id='error-list' class='list-unstyled'></ul>
             </div>
-        </div>
 
-        <!-- Errors -->
-        <div id='errors' class='alert alert-danger' role='alert'>
-            <ul id='error-list' class='list-unstyled'></ul>
-        </div>
-
-        <!-- Container -->
-        <div class='content'>
             <!-- Editor -->
             <div id='editor'></div>
+
             <!-- Output -->
-            <div id='output'></div>
-        </div>
+            <iframe id='output' frameborder='0'></iframe>
+        </div><!-- / #main -->
 
         <!-- Overlay -->
         <div id='overlay'>
             <i class='fa fa-circle-o-notch fa-spin fa-5x'></i>
         </div>
 
-        <!-- Babel Transpiler -->
-        <script src='//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js'></script>
-        <!-- React -->
-        <script src='//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js'></script>
-        <!-- ReactDOM -->
-        <script src='//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'></script>
         <!-- Ace Editor -->
         <script src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js'></script>
         <!-- Lodash -->

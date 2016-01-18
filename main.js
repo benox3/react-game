@@ -2,28 +2,86 @@
     'use strict';
 
     // cache DOM elements
-    var outputNode = document.getElementById('output');
     var errorListNode = document.getElementById('error-list');
+    var outputNode;
+
+    /**
+     * Initializes iframe window and document for level output.
+     *
+     * @param {DOMElement} node - The DOM node, which can be an iframe.
+     * @param {Array} dependencies - The script dependencies for the iframe head.
+     * @return {Window} - The iframe window object.
+     */
+    function initializeIframe(node, dependencies) {
+        var iframe = node;
+
+        // use iframe node or create and append an iframe into node
+        if (iframe.nodeName !== 'IFRAME') {
+            iframe = document.createElement('iframe');
+            node.appendChild(iframe);
+        }
+
+        // get iframe window and document
+        var iframeWindow = iframe.contentWindow || iframe;
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+        // construct iframe document
+        iframeDocument.open();
+        var url, extension;
+        var html = ['<head>'];
+        for (var i = 0, l = dependencies.length; i < l; i++) {
+            url = dependencies[i];
+            extension = url.split('.').pop().toLowerCase();
+            if (extension === 'js') {
+                html.push('<script src="' + url + '"></script>');
+            } else if (extension === 'css') {
+                html.push('<link rel="stylesheet" href="' + url + '" />');
+            }
+        }
+        html.push('</head>');
+        iframeDocument.write(html.join(''));
+        iframeDocument.close();
+
+        return iframeWindow;
+    }
+
+    // todo: get script dependencies from JSON
+    var dependencies = [
+        '//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.js',
+        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js',
+        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'
+    ];
+
+    var iframeWindow = initializeIframe(
+        document.getElementById('output'),
+        dependencies
+    );
+
+    // iframe onload
+    iframeWindow.onload = function() {
+        outputNode = iframeWindow.document.body;
+        renderOutput(editor.getValue(), outputNode, errorListNode);
+    };
 
     // initialize editor
     var ace = window.ace;
     var Range = ace.require('ace/range').Range;
     var editor = ace.edit('editor');
     var session  = editor.getSession();
+    // todo: get allowed lines from JSON
     var allowedLines = [3];
 
     editor.setTheme('ace/theme/monokai');
     session.setMode('ace/mode/jsx');
 
-    // code
+    // todo: get code from JSON
     var code = (
-        'var Component = React.createClass({\n\trender: function() {\n\t\treturn;\n\t}\n});'
+        'var Component = React.createClass({\n\t' +
+        'render: function() {\n\t\treturn;\n\t}\n});' +
+        '\n\nReactDOM.render(<Component />, document.body);'
     );
 
     editor.insert(code);
-
-    // initial load
-    renderOutput(editor.getValue(), outputNode, errorListNode);
 
     var range = new Range();
     range.setStart(allowedLines[0] - 1, 0);
@@ -47,10 +105,10 @@
     });
 
     // refresh on change
-    editor.on('change', function() {
-        // todo: hardcode expected output for now
-        onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
-    });
+    // todo: get expected output from JSON
+    editor.on('change', window._.debounce(function() {
+         onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
+    }, 500));
 
     /**
      * Refreshes Ace editor on change.
@@ -96,17 +154,16 @@
      */
     function renderOutput(editorValue, outputNode, errorListNode) {
         try {
-            var renderComponentCode = '; ReactDOM.render(React.createElement(Component), document.getElementById("output"))';
-            var transpiledCode = window.babel.transform(editorValue + renderComponentCode).code;
+            // todo: use test case from JSON
+            var transpiledCode = iframeWindow.babel.transform(editorValue).code;
 
             // run the transpiled code
-            eval(transpiledCode);
+            iframeWindow.eval(transpiledCode);
 
         } catch (e) {
             var errorElement = document.createElement('li');
-            errorElement.innerHTML = '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>' + '<span>' + e + '</span>';
+            errorElement.innerHTML = '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>' + '<span> ' + e + '</span>';
             errorListNode.appendChild(errorElement);
-            console.log(e);
         }
     }
 

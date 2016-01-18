@@ -1,7 +1,35 @@
+/* general */
 html, body {
     height: 100%;
 }
 
+#instructions,
+#errors {
+    margin-bottom: 0;
+}
+
+/* ace editor and output */
+#editor,
+#output {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    padding: 0;
+    overflow:scroll;
+}
+
+#output {
+    background-color: #fafafa;
+    right: 0;
+}
+
+.editable-highlight {
+    background-color: #666;
+    opacity: 0.5;
+    position: absolute;
+}
+
+/* modal overlay */
 #overlay {
     background: #000;
     opacity: 0.5;
@@ -27,34 +55,4 @@ html, body {
 .js #overlay,
 .js #overlay > .fa-circle-o-notch {
     display: none;
-}
-
-#instructions,
-#errors {
-    margin-bottom: 0;
-}
-
-.editable-highlight {
-    background-color: #666;
-    opacity: 0.5;
-    position: absolute;
-}
-
-.content {
-    position: relative;
-    height: 100%;
-}
-
-#editor,
-#output {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    padding: 0;
-    overflow:scroll;
-}
-
-#output {
-    background-color: #fafafa;
-    right: 0;
 }
