@@ -77,70 +77,60 @@
         return iframeWindow;
     }
 
-    // todo: get script dependencies from JSON
-    var dependencies = [
-        '//cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.js',
-        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js',
-        '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'
-    ];
-
-    iframeWindow = initializeIframe(
-        document.getElementById('output'),
-        dependencies
-    );
-
-    // iframe onload
-    iframeWindow.onload = function() {
-        outputNode = iframeWindow.document.body;
-        renderOutput(editor.getValue(), outputNode, errorListNode);
-    };
-
     // initialize editor
     var ace = window.ace;
     var Range = ace.require('ace/range').Range;
     var editor = ace.edit('editor');
     var session  = editor.getSession();
-    // todo: get allowed lines from JSON
-    var allowedLines = [3];
-
     editor.setTheme('ace/theme/monokai');
-    session.setMode('ace/mode/jsx');
 
-    // todo: get code from JSON
-    var code = (
-        'var Component = React.createClass({\n\t' +
-        'render: function() {\n\t\treturn;\n\t}\n});' +
-        '\n\nReactDOM.render(<Component />, document.body);'
-    );
+    // get level JSON
+    getJSON('./level.json', function(res) {
+        session.setMode('ace/mode/' + res.editor_mode);
 
-    editor.insert(code);
+        var iframeWindow = initializeIframe(
+            document.getElementById('output'),
+            res.dependencies || []
+        );
 
-    var range = new Range();
-    range.setStart(allowedLines[0] - 1, 0);
-    range.setEnd(allowedLines[0] - 1, 80);
-    session.addMarker(range, "editable-highlight");
+        // iframe onload
+        iframeWindow.onload = function() {
+            outputNode = iframeWindow.document.body;
+            renderOutput(editor.getValue(), outputNode, errorListNode);
+        };
 
-    // prevent passing event key if the cursor line does not meet our criteria
-    editor.keyBinding.addKeyboardHandler({
-        handleKeyboard: function(data, hash, keyString, keyCode, event) {
-            if (hash === -1 || (keyCode <= 40 && keyCode >= 37)) {
-                return false;
+        // editor range
+        var range = new Range();
+        // todo: update for more than one allowed line
+        range.setStart(res.editor_allowed_lines[0] - 1, 0);
+        range.setEnd(res.editor_allowed_lines[0] - 1, 80);
+        session.addMarker(range, 'editable-highlight');
+
+        // prevent passing event key if the cursor line does not meet our criteria
+        editor.keyBinding.addKeyboardHandler({
+            handleKeyboard: function(data, hash, keyString, keyCode, event) {
+                if (hash === -1 || (keyCode <= 40 && keyCode >= 37)) {
+                    return false;
+                }
+
+                if (!intersects(editor, range)) {
+                    return {
+                        command: 'null',
+                        passEvent: false
+                    };
+                }
             }
+        });
 
-            if (!intersects(editor, range)) {
-                return {
-                    command: 'null',
-                    passEvent: false
-                };
-            }
-        }
+        // insert level code into editor
+        editor.insert(res.code);
+
+        // refresh on change
+        editor.on('change', window._.debounce(function() {
+             onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
+        }, 500));
+
     });
-
-    // refresh on change
-    // todo: get expected output from JSON
-    editor.on('change', window._.debounce(function() {
-         onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
-    }, 500));
 
     /**
      * Refreshes Ace editor on change.
@@ -156,7 +146,6 @@
         renderOutput(editorValue, outputNode, errorListNode);
         // todo: hardcode expected output for now
         validateOutput(editorValue, outputNode.innerHTML, expectedOutput);
-        console.log(errorListNode.innerHTML.length);
 
         if (errorListNode.innerHTML.length < 1) {
             errorContainerNode.classList.remove('hide');
