@@ -6,6 +6,38 @@
     var outputNode;
 
     /**
+     * The `getJSON` success callback.
+     *
+     * @callback xhrCallback
+     * @param {Object} The JSON response.
+     */
+
+    /**
+     * Gets JSON from url.
+     *
+     * @param {String} url - The url.
+     * @param {xhrCallback} callback - The callback that handles the response.
+     */
+    function getJSON(url, callback) {
+        // http://youmightnotneedjquery.com/#json
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+
+        request.onreadystatechange = function() {
+            if (this.readyState === 4) {
+                if (this.status >= 200 && this.status < 400) {
+                    callback(JSON.parse(this.responseText));
+                } else {
+                    // todo: handle error
+                }
+            }
+        };
+
+        request.send();
+        request = null;
+    }
+
+    /**
      * Initializes iframe window and document for level output.
      *
      * @param {DOMElement} node - The DOM node, which can be an iframe.
