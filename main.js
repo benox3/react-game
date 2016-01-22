@@ -4,6 +4,7 @@
     // cache DOM elements
     var errorListNode = document.getElementById('error-list');
     var outputNode;
+    var iframeWindow;
 
     /**
      * The `getJSON` success callback.
@@ -40,7 +41,7 @@
     /**
      * Initializes iframe window and document for level output.
      *
-     * @param {DOMElement} node - The DOM node, which can be an iframe.
+     * @param {HTMLElement} node - The DOM node, which can be an iframe.
      * @param {Array} dependencies - The script dependencies for the iframe head.
      * @return {Window} - The iframe window object.
      */
@@ -53,12 +54,11 @@
             node.appendChild(iframe);
         }
 
-        // get iframe window and document
-        var iframeWindow = iframe.contentWindow || iframe;
-        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        // get iframe window
+        iframeWindow = iframe.contentWindow || iframe;
 
         // construct iframe document
-        iframeDocument.open();
+        iframeWindow.document.open();
         var url, extension;
         var html = ['<head>'];
         for (var i = 0, l = dependencies.length; i < l; i++) {
@@ -71,8 +71,8 @@
             }
         }
         html.push('</head>');
-        iframeDocument.write(html.join(''));
-        iframeDocument.close();
+        iframeWindow.document.write(html.join(''));
+        iframeWindow.document.close();
 
         return iframeWindow;
     }
@@ -84,7 +84,7 @@
         '//cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js'
     ];
 
-    var iframeWindow = initializeIframe(
+    iframeWindow = initializeIframe(
         document.getElementById('output'),
         dependencies
     );
@@ -120,9 +120,9 @@
     range.setEnd(allowedLines[0] - 1, 80);
     session.addMarker(range, "editable-highlight");
 
-    // prevent passsing event key if the cursor line does not meet our criteria
+    // prevent passing event key if the cursor line does not meet our criteria
     editor.keyBinding.addKeyboardHandler({
-        handleKeyboard : function(data, hash, keyString, keyCode, event) {
+        handleKeyboard: function(data, hash, keyString, keyCode, event) {
             if (hash === -1 || (keyCode <= 40 && keyCode >= 37)) {
                 return false;
             }
@@ -147,8 +147,8 @@
      *
      * @param {String} editorValue - The editor value.
      * @param {String} expectedOutput - The expected output.
-     * @param {DOMElement} outputNode - The output DOM element.
-     * @param {DOMElement} errorListNode - The error list DOM element.
+     * @param {HTMLElement} outputNode - The output DOM element.
+     * @param {HTMLElement} errorListNode - The error list DOM element.
      */
     function onEditorChange(editorValue, expectedOutput, outputNode, errorListNode) {
         var errorContainerNode = errorListNode.parentNode;
@@ -181,8 +181,8 @@
      * Renders the editor output.
      *
      * @param {String} editorValue - The editor value.
-     * @param {DOMElement} outputNode - The output DOM element.
-     * @param {DOMElement} errorListNode - The error list DOM element.
+     * @param {HTMLElement} outputNode - The output DOM element.
+     * @param {HTMLElement} errorListNode - The error list DOM element.
      */
     function renderOutput(editorValue, outputNode, errorListNode) {
         try {
