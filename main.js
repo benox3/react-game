@@ -69,7 +69,10 @@
     var editor = ace.edit('editor');
     var session  = editor.getSession();
     // todo: get allowed lines from JSON
-    var allowedLines = [3];
+    var preventedRowRanges = [
+        [0,1],
+        [4,8]
+    ];
 
     editor.setTheme('ace/theme/monokai');
     session.setMode('ace/mode/jsx');
@@ -82,24 +85,39 @@
     );
 
     editor.insert(code);
-
-    var range = new Range();
-    range.setStart(allowedLines[0] - 1, 0);
-    range.setEnd(allowedLines[0] - 1, 80);
-    session.addMarker(range, "editable-highlight");
+    var ranges = [];
+    _.forEach(preventedRowRanges, function(preventedRows){
+        var range = new Range();
+        range.setStart(preventedRows[0], 0);
+        range.setEnd(preventedRows[1], 80);
+        ranges.push(range);
+        session.addMarker(range, "readonly-highlight");
+    });
 
     // prevent passsing event key if the cursor line does not meet our criteria
     editor.keyBinding.addKeyboardHandler({
         handleKeyboard : function(data, hash, keyString, keyCode, event) {
+            var preventTyping;
             if (hash === -1 || (keyCode <= 40 && keyCode >= 37)) {
                 return false;
             }
-
-            if (!intersects(editor, range)) {
+            
+            _.forEach(ranges, function(range){
+                if (intersects(editor, range)) {
+                    preventTyping = true;
+                } 
+            });
+            
+            if(preventTyping){
                 return {
                     command: 'null',
                     passEvent: false
                 };
+            } else {
+                if(keyCode === 13) {
+                    incrementRanges(editor.selection.getCursor().row,
+                                    editor.session.getValue().length);
+                }
             }
         }
     });
@@ -179,5 +197,22 @@
         if (outputHTML.indexOf(expectedOutput) >= 0) {
             alert('You got it!');
         }
+     }
+
+     /**
+     * Validates the editor output.
+     *
+     * @param {String} currentLine - The current line of the editor.
+     */
+     function incrementRanges(currentLine, editorLength) {
+        ranges = _.map(ranges, function(range){
+             if(range.start.row > currentLine) {
+                range.setStart(range.start.row + 1, 0);
+                range.setEnd(range.end.row + 1, range.end.column);
+             }
+             console.log(range.start.row);
+             console.log(range.end.row);
+             return range;
+         });
      }
 })();

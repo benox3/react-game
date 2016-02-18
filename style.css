@@ -23,12 +23,15 @@ html, body {
     right: 0;
 }
 
-.editable-highlight {
-    background-color: #666;
+.readonly-highlight {
+    background-color: red;
     opacity: 0.5;
     position: absolute;
 }
-
+/* prevent the activeline highlight*/
+.ace_active-line {
+    opacity:0;
+}
 /* modal overlay */
 #overlay {
     background: #000;
