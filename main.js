@@ -127,7 +127,13 @@
 
         // refresh on change
         editor.on('change', window._.debounce(function() {
-             onEditorChange(editor.getValue(), 'Hello World!', outputNode, errorListNode);
+             onEditorChange({
+                editorValue: editor.getValue(),
+                outputValidator: eval(res.output_validator),
+                iframeWindow: iframeWindow,
+                outputNode: outputNode,
+                errorListNode: errorListNode
+             });
         }, 500));
 
     });
@@ -135,19 +141,20 @@
     /**
      * Refreshes Ace editor on change.
      *
-     * @param {String} editorValue - The editor value.
-     * @param {String} expectedOutput - The expected output.
-     * @param {HTMLElement} outputNode - The output DOM element.
-     * @param {HTMLElement} errorListNode - The error list DOM element.
+     * @param {Object} options - The options.
+     * @param {String} options.editorValue - The editor value.
+     * @param {Function} options.outputValidator - The validation function.
+     * @param {Window} options.iframeWindow - The iframe window.
+     * @param {HTMLElement} options.outputNode - The output DOM element.
+     * @param {HTMLElement} options.errorListNode - The error list DOM element.
      */
-    function onEditorChange(editorValue, expectedOutput, outputNode, errorListNode) {
-        var errorContainerNode = errorListNode.parentNode;
-        errorListNode.innerHTML = '';
-        renderOutput(editorValue, outputNode, errorListNode);
-        // todo: hardcode expected output for now
-        validateOutput(editorValue, outputNode.innerHTML, expectedOutput);
+    function onEditorChange(options) {
+        var errorContainerNode = options.errorListNode.parentNode;
+        options.errorListNode.innerHTML = '';
+        renderOutput(options.editorValue, options.outputNode, options.errorListNode);
+        console.log(options.outputValidator(options.iframeWindow));
 
-        if (errorListNode.innerHTML.length < 1) {
+        if (options.errorListNode.innerHTML.length < 1) {
             errorContainerNode.classList.remove('hide');
             errorContainerNode.classList.add('hide');
         } else { 
@@ -187,18 +194,4 @@
             errorListNode.appendChild(errorElement);
         }
     }
-
-    /**
-     * Validates the editor output.
-     *
-     * @param {String} editorValue - The editor value.
-     * @param {String} outputHTML - The inner HTML of the output DOM element.
-     * @param {String} expectedOutput - The expected output.
-     */
-     function validateOutput(editorValue, outputHTML, expectedOutput) {
-        // if answer is correct alert us
-        if (outputHTML.indexOf(expectedOutput) >= 0) {
-            alert('You got it!');
-        }
-     }
 })();
